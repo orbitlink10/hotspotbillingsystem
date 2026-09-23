@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Support\HomepageArticle;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class HomepageContentController extends Controller
 {
     private array $fields = [
+        'home_seo_title' => 'Hotspot Billing & ISP Management in Kenya',
+        'home_seo_body' => '',
         'home_hero_title' => 'Hotspot Billing System & ISP Billing Software in Kenya',
         'home_hero_description' => 'Manage hotspot users, ISP subscribers, internet packages, billing and payments from one platform built for internet providers in Kenya.',
         'home_primary_cta' => 'Get Started',
@@ -45,6 +49,8 @@ class HomepageContentController extends Controller
     public function update(Request $request)
     {
         $data = $request->validate([
+            'home_seo_title' => ['nullable', 'string', 'max:200'],
+            'home_seo_body' => ['nullable', 'string', 'max:60000'],
             'home_hero_title' => ['required', 'string', 'max:120'],
             'home_hero_description' => ['required', 'string', 'max:500'],
             'home_primary_cta' => ['required', 'string', 'max:80'],
@@ -69,6 +75,19 @@ class HomepageContentController extends Controller
             'home_hero_image' => ['nullable', 'image', 'max:4096'],
             'home_hero_image_url' => ['nullable', 'string', 'max:500'],
         ]);
+
+        $data['home_seo_body'] = HomepageArticle::clean($data['home_seo_body'] ?? '');
+        if ($data['home_seo_body'] !== '' && trim($data['home_seo_title'] ?? '') === '') {
+            throw ValidationException::withMessages([
+                'home_seo_title' => 'Please add a title for your homepage article.',
+            ]);
+        }
+
+        if (strlen($data['home_seo_body']) > 60000) {
+            throw ValidationException::withMessages([
+                'home_seo_body' => 'The homepage article is too long. Please shorten it before saving.',
+            ]);
+        }
 
         foreach (array_keys($this->fields) as $key) {
             if ($key === 'home_hero_image') {

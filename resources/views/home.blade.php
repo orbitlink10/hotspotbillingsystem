@@ -88,4 +88,80 @@
         </div>
     </div>
 </section>
+@if($content['home_seo_body'] !== '')
+    <style>
+        .home-article-section { padding:56px 0 72px; background:#f4f7fc; }
+        .home-article-section > .container { width:calc(100% - 48px); max-width:1772px; padding:0; }
+        .home-article-frame { position:relative; padding:0 40px 0 50px; border-radius:48px; background:linear-gradient(135deg, #f7fafd, #edf4fc); }
+        .home-article-frame::before { content:""; position:absolute; left:0; top:26px; bottom:26px; width:7px; border-radius:5px; background:linear-gradient(#17457d, #2879ff); }
+        .home-article-card { --article-padding:clamp(28px, 3.5vw, 64px); --article-gutter:24px; position:relative; padding:var(--article-padding); border:1px solid #e3ebf6; border-radius:42px; background:#fff; box-shadow:0 24px 64px rgba(30, 64, 110, .08); }
+        .home-article-card::after { content:""; position:absolute; left:var(--article-padding); right:calc(var(--article-padding) + var(--article-gutter)); bottom:var(--article-padding); height:112px; pointer-events:none; background:linear-gradient(transparent, #fff); opacity:0; }
+        .home-article-card.has-more::after { opacity:1; }
+        .home-article-scroll { max-height:532px; overflow-y:auto; padding-right:var(--article-gutter); scrollbar-width:thin; scrollbar-color:#c7d4e5 transparent; overflow-wrap:anywhere; }
+        .home-article-scroll:focus-visible { outline:3px solid #2879ff; outline-offset:8px; border-radius:4px; }
+        .home-article-title { margin:0 0 40px; color:#17457d; font-size:clamp(1.65rem, 2.6vw, 3rem); line-height:1.3; font-weight:750; }
+        .home-article-body { color:#506079; font-size:clamp(1.0625rem, 1.3vw, 1.5rem); line-height:1.95; }
+        .home-article-body h3, .home-article-body h4, .home-article-body h5, .home-article-body h6 { color:#17457d; font-weight:700; line-height:1.4; margin:1.5em 0 .65em; }
+        .home-article-body h3 { font-size:clamp(1.5rem, 2.6vw, 3rem); }
+        .home-article-body h4 { font-size:clamp(1.25rem, 1.8vw, 2rem); }
+        .home-article-body > :first-child { margin-top:0; }
+        .home-article-body > :last-child { margin-bottom:0; }
+        .home-article-body p { margin-bottom:1.2em; }
+        .home-article-body ul, .home-article-body ol { padding-left:1.5em; margin-bottom:1.2em; }
+        .home-article-body li { margin-bottom:.4em; }
+        .home-article-body a { color:#0b5ed7; text-decoration:underline; text-underline-offset:3px; }
+        .home-article-body blockquote { border-left:3px solid #2879ff; margin:1.5em 0; padding:8px 20px; background:#f4f7fc; }
+        @media (max-width:991.98px) {
+            .home-article-frame { padding:0 0 0 24px; }
+            .home-article-frame::before { width:5px; }
+        }
+        @media (max-width:575.98px) {
+            .home-article-section { padding:32px 0 40px; }
+            .home-article-section > .container { width:calc(100% - 24px); }
+            .home-article-frame { padding-left:14px; }
+            .home-article-frame::before { width:4px; }
+            .home-article-card { --article-padding:24px; --article-gutter:12px; border-radius:22px; }
+            .home-article-card::after { height:72px; }
+            .home-article-scroll { max-height:65vh; }
+            .home-article-title { margin-bottom:28px; }
+            .home-article-body { font-size:1rem; line-height:1.8; }
+        }
+        @media print {
+            .home-article-scroll { max-height:none; overflow:visible; }
+            .home-article-card::after { display:none; }
+        }
+    </style>
+    <section class="home-article-section" id="homepage-article" aria-labelledby="homepage-article-title">
+        <div class="container">
+            <div class="home-article-frame">
+                <article class="home-article-card">
+                    <div class="home-article-scroll" tabindex="0" role="region" aria-labelledby="homepage-article-title">
+                        <h2 class="home-article-title" id="homepage-article-title">{{ $content['home_seo_title'] }}</h2>
+                        <div class="home-article-body">{!! $content['home_seo_body'] !!}</div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+    @push('scripts')
+    <script>
+        (() => {
+            const card = document.querySelector('#homepage-article .home-article-card');
+            const scroller = card.querySelector('.home-article-scroll');
+            const updateFade = () => {
+                const hasMore = scroller.scrollHeight - scroller.clientHeight - scroller.scrollTop > 2;
+                card.classList.toggle('has-more', hasMore && !scroller.contains(document.activeElement));
+            };
+
+            scroller.addEventListener('scroll', updateFade, { passive: true });
+            window.addEventListener('resize', updateFade);
+            window.addEventListener('load', updateFade);
+            // Keep the final lines and focused links readable at the end of the article.
+            scroller.addEventListener('focusin', updateFade);
+            scroller.addEventListener('focusout', updateFade);
+            updateFade();
+        })();
+    </script>
+    @endpush
+@endif
 @endsection

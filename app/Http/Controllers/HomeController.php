@@ -6,12 +6,15 @@ use App\Models\Category;
 use App\Models\Review;
 use App\Models\Service;
 use App\Models\Setting;
+use App\Support\HomepageArticle;
 
 class HomeController extends Controller
 {
     public function __invoke()
     {
         $defaults = [
+            'home_seo_title' => 'Hotspot Billing & ISP Management in Kenya',
+            'home_seo_body' => '',
             'home_hero_title' => 'Hotspot Billing System & ISP Billing Software in Kenya',
             'home_hero_description' => 'Manage hotspot users, ISP subscribers, internet packages, billing and payments from one platform built for internet providers in Kenya.',
             'home_primary_cta' => 'Get Started',
@@ -37,6 +40,7 @@ class HomeController extends Controller
         ];
 
         $content = collect($defaults)->mapWithKeys(fn ($default, $key) => [$key => Setting::valueFor($key, $default)]);
+        $content['home_seo_body'] = HomepageArticle::clean($content['home_seo_body']);
 
         return view('home', [
             'categories' => Category::where('is_active', true)->with('services')->take(10)->get(),
