@@ -88,7 +88,6 @@ class PageController extends Controller
         abort_if($index === false, 404);
 
         $existing = $pages[$index];
-        $otherPages = collect($pages)->reject(fn ($page) => (int) ($page['id'] ?? 0) === $id)->values()->all();
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('pages', 'public');
@@ -97,7 +96,8 @@ class PageController extends Controller
         }
 
         $data['id'] = $id;
-        $data['slug'] = $this->uniqueSlug($data['title'], $otherPages);
+        // Preserve the URL so default pages are not recreated after an edit.
+        $data['slug'] = $existing['slug'];
         $data['alt'] = $data['alt'] ?: $data['title'];
         $data['published_at'] = $existing['published_at'] ?? null;
 
