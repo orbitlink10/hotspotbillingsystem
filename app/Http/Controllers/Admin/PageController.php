@@ -15,7 +15,11 @@ class PageController extends Controller
     public function index(Request $request)
     {
         $pages = collect($this->pages())
-            ->sortByDesc(fn ($page) => (int) ($page['id'] ?? 0))
+            // Keep legacy articles without publication dates in newest-ID-first order.
+            ->sortByDesc(fn ($page) => [
+                strtotime($page['published_at'] ?? '') ?: 0,
+                (int) ($page['id'] ?? 0),
+            ])
             ->values();
         $perPage = 15;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -55,6 +59,7 @@ class PageController extends Controller
         $data['id'] = empty($pages) ? 1 : ((int) collect($pages)->max('id') + 1);
         $data['slug'] = $this->uniqueSlug($data['title'], $pages);
         $data['alt'] = $data['alt'] ?: $data['title'];
+        $data['published_at'] = now()->toIso8601String();
 
         $pages[] = $data;
         $this->save($pages);
@@ -94,6 +99,7 @@ class PageController extends Controller
         $data['id'] = $id;
         $data['slug'] = $this->uniqueSlug($data['title'], $otherPages);
         $data['alt'] = $data['alt'] ?: $data['title'];
+        $data['published_at'] = $existing['published_at'] ?? null;
 
         $pages[$index] = $data;
         $this->save(array_values($pages));

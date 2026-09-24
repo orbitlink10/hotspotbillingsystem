@@ -58,7 +58,7 @@
 <div class="pages-screen">
     <div class="pages-heading">
         <h1>Pages</h1>
-        <p>Manage site pages and published content.</p>
+        <p>Manage site pages and published content, newest first.</p>
     </div>
 
     <section class="pages-card">
