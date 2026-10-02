@@ -18,7 +18,7 @@ class SiteNavigation
             'why-choose-us' => ['label' => 'Why Choose Us', 'url' => route('pages.preview', 'why-choose-us')],
             'service-areas' => ['label' => "Who It's For", 'url' => route('home').'#service-areas'],
             'testimonials' => ['label' => 'Testimonials', 'url' => route('home').'#testimonials'],
-            'get-started' => ['label' => 'Get Started', 'url' => route('bookings.create')],
+            'get-started' => ['label' => 'Get Started', 'url' => 'https://tajira.co.ke/signup'],
         ];
     }
 
