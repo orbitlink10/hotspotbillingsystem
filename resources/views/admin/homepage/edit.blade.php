@@ -12,12 +12,59 @@
 @php
     $currentHeroImage = $content['home_hero_image'];
     $currentHeroImageUrl = str_starts_with($currentHeroImage, 'http') ? $currentHeroImage : asset('storage/'.$currentHeroImage);
+    $navSelected = old('home_nav_items', array_filter(explode(',', (string) $content['home_nav_items'])));
+    $topbarEnabled = old('home_topbar_enabled', $content['home_topbar_enabled']) == '1';
 @endphp
 <form method="post" action="{{ route('admin.homepage.update') }}" enctype="multipart/form-data" class="card">
     @csrf
     @method('put')
     <div class="card-body p-4">
         <div class="row g-3">
+            <div class="col-12">
+                <h2 class="h5 fw-bold mb-2">Navigation Menu</h2>
+                <p class="text-muted mb-3">Select the links that appear in the homepage navigation bar. Uncheck a link to hide it.</p>
+                <div class="row g-2">
+                    @foreach(\App\Support\SiteNavigation::itemDefinitions() as $key => $item)
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="home_nav_items[]" id="nav_{{ $key }}" value="{{ $key }}" @checked(in_array($key, (array) $navSelected, true))>
+                                <label class="form-check-label" for="nav_{{ $key }}">{{ $item['label'] }}</label>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                @error('home_nav_items')<div class="text-danger mt-2">{{ $message }}</div>@enderror
+                <hr class="my-4">
+            </div>
+            <div class="col-12">
+                <h2 class="h5 fw-bold mb-2">Contact Top Bar</h2>
+                <p class="text-muted mb-3">The green contact bar shown above the navigation on every page.</p>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="home_topbar_enabled" id="home_topbar_enabled" value="1" @checked($topbarEnabled)>
+                    <label class="form-check-label" for="home_topbar_enabled">Show contact bar</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="home_topbar_email">Email</label>
+                <input class="form-control" id="home_topbar_email" name="home_topbar_email" value="{{ old('home_topbar_email', $content['home_topbar_email']) }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="home_topbar_phone">Phone</label>
+                <input class="form-control" id="home_topbar_phone" name="home_topbar_phone" value="{{ old('home_topbar_phone', $content['home_topbar_phone']) }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="home_topbar_address">Address</label>
+                <input class="form-control" id="home_topbar_address" name="home_topbar_address" value="{{ old('home_topbar_address', $content['home_topbar_address']) }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="home_topbar_link_label">Right link label</label>
+                <input class="form-control" id="home_topbar_link_label" name="home_topbar_link_label" value="{{ old('home_topbar_link_label', $content['home_topbar_link_label']) }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="home_topbar_link_url">Right link URL</label>
+                <input class="form-control" id="home_topbar_link_url" name="home_topbar_link_url" value="{{ old('home_topbar_link_url', $content['home_topbar_link_url']) }}">
+            </div>
+            <div class="col-12"><hr class="my-2"></div>
             <div class="col-12" id="homepage-article-editor">
                 <h2 class="h5 fw-bold mb-2">Homepage SEO Article</h2>
                 <p class="text-muted mb-3">Publish a guide about your services in a scrollable section above the homepage footer. Leave the article empty to hide the section.</p>

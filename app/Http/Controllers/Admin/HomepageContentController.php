@@ -5,12 +5,20 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Support\HomepageArticle;
+use App\Support\SiteNavigation;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class HomepageContentController extends Controller
 {
     private array $fields = [
+        'home_nav_items' => 'home,features,how-it-works,why-choose-us,service-areas,testimonials,get-started',
+        'home_topbar_enabled' => '1',
+        'home_topbar_email' => 'support@hotspotbillingsystem.co.ke',
+        'home_topbar_address' => 'Nairobi, Kenya',
+        'home_topbar_phone' => '+254 711 000 000',
+        'home_topbar_link_label' => 'Shop Equipment',
+        'home_topbar_link_url' => '/services',
         'home_seo_title' => 'Hotspot Billing & ISP Management in Kenya',
         'home_seo_body' => '',
         'home_hero_title' => 'Hotspot Billing System & ISP Billing Software in Kenya',
@@ -49,6 +57,14 @@ class HomepageContentController extends Controller
     public function update(Request $request)
     {
         $data = $request->validate([
+            'home_nav_items' => ['nullable'],
+            'home_nav_items.*' => ['string'],
+            'home_topbar_enabled' => ['nullable'],
+            'home_topbar_email' => ['nullable', 'string', 'max:150'],
+            'home_topbar_address' => ['nullable', 'string', 'max:200'],
+            'home_topbar_phone' => ['nullable', 'string', 'max:50'],
+            'home_topbar_link_label' => ['nullable', 'string', 'max:80'],
+            'home_topbar_link_url' => ['nullable', 'string', 'max:255'],
             'home_seo_title' => ['nullable', 'string', 'max:200'],
             'home_seo_body' => ['nullable', 'string', 'max:60000'],
             'home_hero_title' => ['required', 'string', 'max:120'],
@@ -88,6 +104,14 @@ class HomepageContentController extends Controller
                 'home_seo_body' => 'The homepage article is too long. Please shorten it before saving.',
             ]);
         }
+
+        $navItems = $data['home_nav_items'] ?? [];
+        if (! is_array($navItems)) {
+            $navItems = explode(',', (string) $navItems);
+        }
+        $navItems = array_map('strval', $navItems);
+        $data['home_nav_items'] = implode(',', array_values(array_intersect(SiteNavigation::keys(), $navItems)));
+        $data['home_topbar_enabled'] = $request->boolean('home_topbar_enabled') ? '1' : '0';
 
         foreach (array_keys($this->fields) as $key) {
             if ($key === 'home_hero_image') {

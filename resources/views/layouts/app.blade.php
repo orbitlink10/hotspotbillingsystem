@@ -21,6 +21,17 @@
         body { background:#f6f9fb; color:var(--slk-ink); font-size:1rem; }
         .navbar { box-shadow:0 8px 30px rgba(16,24,40,.08); }
         .navbar .nav-link { color:#334155; font-size:1rem; font-weight:600; }
+        .site-topbar { background:var(--slk-green); color:#fff; font-size:.9rem; }
+        .site-topbar a { color:#fff; text-decoration:none; }
+        .site-topbar a:hover { color:#d7f5e9; }
+        .site-topbar .topbar-inner { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 22px; padding:9px 0; }
+        .site-topbar .topbar-group { display:flex; flex-wrap:wrap; align-items:center; gap:6px 18px; }
+        .site-topbar .topbar-item { display:inline-flex; align-items:center; gap:8px; }
+        .site-topbar .topbar-divider { width:1px; height:18px; background:rgba(255,255,255,.4); }
+        @media (max-width: 767.98px) {
+            .site-topbar .topbar-inner { justify-content:center; text-align:center; }
+            .site-topbar .topbar-divider { display:none; }
+        }
         .navbar .nav-link:hover,
         .navbar .nav-link.active { color:var(--slk-green); }
         .brand-mark { width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg,var(--slk-green),var(--slk-blue)); display:inline-grid; place-items:center; color:#fff; font-weight:800; }
@@ -83,19 +94,45 @@
     </style>
 </head>
 <body>
+@if($siteTopbar)
+<div class="site-topbar">
+    <div class="container">
+        <div class="topbar-inner">
+            <div class="topbar-group">
+                @if($siteTopbar['email'])
+                    <a class="topbar-item" href="mailto:{{ $siteTopbar['email'] }}"><i class="bi bi-send-fill"></i><span>{{ $siteTopbar['email'] }}</span></a>
+                @endif
+                @if($siteTopbar['email'] && $siteTopbar['address'])
+                    <span class="topbar-divider" aria-hidden="true"></span>
+                @endif
+                @if($siteTopbar['address'])
+                    <span class="topbar-item"><i class="bi bi-geo-alt-fill"></i><span>{{ $siteTopbar['address'] }}</span></span>
+                @endif
+            </div>
+            <div class="topbar-group">
+                @if($siteTopbar['phone'])
+                    <a class="topbar-item" href="tel:{{ preg_replace('/[^0-9+]/', '', $siteTopbar['phone']) }}">{{ $siteTopbar['phone'] }}</a>
+                @endif
+                @if($siteTopbar['phone'] && $siteTopbar['link_label'])
+                    <span class="topbar-divider" aria-hidden="true"></span>
+                @endif
+                @if($siteTopbar['link_label'])
+                    <a class="topbar-item" href="{{ $siteTopbar['link_url'] ?: '#' }}">{{ $siteTopbar['link_label'] }}</a>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 <nav class="navbar navbar-expand-lg bg-white sticky-top">
     <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{{ route('home') }}"><span class="brand-mark">HB</span> HotspotBillingSystem.co.ke</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
         <div id="nav" class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('pages.preview', 'services') }}">Features</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('pages.preview', 'how-it-works') }}">How It Works</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('pages.preview', 'why-choose-us') }}">Why Choose Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#service-areas">Who It's For</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#testimonials">Testimonials</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('bookings.create') }}">Get Started</a></li>
+                @foreach($siteNavItems as $item)
+                    <li class="nav-item"><a class="nav-link" href="{{ $item['url'] }}">{{ $item['label'] }}</a></li>
+                @endforeach
                 @auth
                     <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
                     @if(auth()->user()->isRole(['admin', 'dispatcher']))
